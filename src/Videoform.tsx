@@ -201,16 +201,6 @@ const Videoform: React.FC = () => {
             Search
           </Button>
         )}
-
-        {/* <Button
-          sx={{ fontWeight: 700, marginTop: "20px" }}
-          variant="contained"
-          size="large"
-          color="info"
-          onClick={handleSearch}
-        >
-          Search
-        </Button> */}
       </Box>
     </Box>
   );
