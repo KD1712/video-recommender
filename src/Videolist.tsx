@@ -13,9 +13,13 @@ import {
   FormControl,
   InputLabel,
   Button,
+  Link,
 } from "@mui/material";
 import { useState } from "react";
 import { SelectChangeEvent } from "@mui/material/Select";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
 
 const Videolist: React.FC = () => {
   const [selectedVideos, setSelectedVideos] = useState<number[]>([]);
@@ -115,16 +119,6 @@ const Videolist: React.FC = () => {
       views: 1500,
       channel: "Channel A",
     },
-    {
-      id: 10,
-      srNo: 10,
-      title: "Video 10",
-      link: "https://example.com/video10",
-      description: "This is the description for Video 10.",
-      ratings: 8.9,
-      views: 1500,
-      channel: "Channel D",
-    },
   ];
 
   const handleSelect = (videoId: number) => {
@@ -167,37 +161,66 @@ const Videolist: React.FC = () => {
     <Box
       sx={{
         display: "flex",
+        flexDirection: "column",
         height: "700px",
-        width: "900px",
+        width: "950px",
         margin: "auto",
         justifyContent: "center",
         alignItems: "center",
+        color: "#223556",
+        // boxShadow: 2,
+        // borderRadius: 1,
+        // padding: "10px",
+        // background: "#ebecf0",
       }}
     >
+      <Box  
+       sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "20px",
+        boxShadow: 2,
+        borderRadius: 1,
+        background: "#ebecf0",
+      }}>
+      
       <Box
         sx={{
           display: "flex",
-          width: "850px",
-          height: "90%",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <VideoLibraryIcon sx={{ fontSize: "40px", marginX: "5px" }} />
+        <h1>Recommended Videos</h1>
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          width: "900px",
+          // height: "70%",
           padding: "5px",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
           paddingLeft: "10px",
-          boxShadow: 2,
-          borderRadius: 1,
+          // boxShadow: 2,
+          // borderRadius: 1,
+          // background: "#ebecf0",
         }}
       >
-        <h1>Recommended Videos</h1>
         <TableContainer
           sx={{
             // boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)", // Shadow effect
-            border: "1px solid #ddd", // Border color
+            border: "2px solid #ddd", // Border color
             borderRadius: "8px", // Border radius
             overflowX: "hidden",
             overflowY: "auto", // Hide overflowing content
             maxHeight: "300px",
-            marginX: "5px",
+            // marginX: "5px",
           }}
         >
           <Box
@@ -205,8 +228,8 @@ const Videolist: React.FC = () => {
               display: "flex",
               alignItems: "center",
               width: "26%",
-              margin: "20px",
-              justifyContent: "flex-start", // Align the filter to the left
+              margin: "10px",
+              justifyContent: "flex-start",
             }}
           >
             <span
@@ -216,7 +239,7 @@ const Videolist: React.FC = () => {
                 fontSize: "16px",
               }}
             >
-              Filter By:
+              <FilterAltIcon />
             </span>
             <FormControl variant="outlined" fullWidth size="small">
               <InputLabel id="channel-filter-label">Channel Name</InputLabel>
@@ -238,311 +261,214 @@ const Videolist: React.FC = () => {
               </Select>
             </FormControl>
           </Box>
-          <Table
-            sx={{ minWidth: 650, borderCollapse: "collapse", borderSpacing: 0 }}
-          >
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontSize: "15px", fontWeight: 600 }}>
-                  Select
-                </TableCell>
-                <TableCell sx={{ fontSize: "15px", fontWeight: 600 }}>
-                  Sr.No
-                </TableCell>
-                <TableCell sx={{ fontSize: "15px", fontWeight: 600 }}>
-                  <TableSortLabel
-                    active={orderBy === "title"}
-                    direction={orderBy === "title" ? order : "asc"}
-                    onClick={() => handleSort("title")}
-                  >
-                    Title
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ fontSize: "15px", fontWeight: 600 }}>
-                  Description
-                </TableCell>
-                <TableCell sx={{ fontSize: "15px", fontWeight: 600 }}>
-                  Channel Name
-                </TableCell>
-                <TableCell sx={{ fontSize: "15px", fontWeight: 600 }}>
-                  Link
-                </TableCell>
-                <TableCell sx={{ fontSize: "15px", fontWeight: 600 }}>
-                  <TableSortLabel
-                    active={orderBy === "ratings"}
-                    direction={orderBy === "ratings" ? order : "asc"}
-                    onClick={() => handleSort("ratings")}
-                  >
-                    Ratings
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ fontSize: "15px", fontWeight: 600 }}>
-                  Views
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {sortedAndFilteredData.map((video) => (
-                <TableRow
-                  key={video.id}
-                  sx={{
-                    "&:nth-of-type(even)": {
-                      backgroundColor: "#f9f9f9", // Alternate row background color
-                    },
-                    borderBottom: "1px solid #ddd",
-                  }}
-                >
+          <Box>
+            <Table
+              sx={{
+                minWidth: 650,
+                borderTop: "1px solid #ddd ",
+                borderSpacing: 0,
+              }}
+            >
+              <TableHead>
+                <TableRow>
                   <TableCell
-                    sx={{
-                      borderBottom: "1px solid #ddd", // Border color between cells
-                    }}
+                    sx={{ fontSize: "18px", fontWeight: 600, color: "#223556" }}
                   >
-                    <Checkbox
-                      checked={selectedVideos.includes(video.id)}
-                      onChange={() => handleSelect(video.id)}
-                    />
+                    Select
                   </TableCell>
                   <TableCell
-                    sx={{
-                      borderBottom: "1px solid #ddd", // Border color between cells
-                    }}
+                    sx={{ fontSize: "18px", fontWeight: 600, color: "#223556" }}
                   >
-                    {video.srNo}
+                    Sr.No
                   </TableCell>
                   <TableCell
-                    sx={{
-                      borderBottom: "1px solid #ddd", // Border color between cells
-                    }}
+                    sx={{ fontSize: "18px", fontWeight: 600, color: "#223556" }}
                   >
-                    {video.title}
+                    <TableSortLabel
+                      active={orderBy === "title"}
+                      direction={orderBy === "title" ? order : "asc"}
+                      onClick={() => handleSort("title")}
+                    >
+                      Title
+                    </TableSortLabel>
                   </TableCell>
                   <TableCell
-                    sx={{
-                      borderBottom: "1px solid #ddd", // Border color between cells
-                    }}
+                    sx={{ fontSize: "18px", fontWeight: 600, color: "#223556" }}
                   >
-                    {video.channel}
+                    Description
                   </TableCell>
                   <TableCell
-                    sx={{
-                      borderBottom: "1px solid #ddd", // Border color between cells
-                    }}
+                    sx={{ fontSize: "18px", fontWeight: 600, color: "#223556" }}
                   >
-                    {video.description}
+                    Channel Name
                   </TableCell>
                   <TableCell
-                    sx={{
-                      borderBottom: "1px solid #ddd", // Border color between cells
-                    }}
+                    sx={{ fontSize: "18px", fontWeight: 600, color: "#223556" }}
                   >
-                    <a href={video.link}>Link</a>
+                    Link
                   </TableCell>
                   <TableCell
-                    sx={{
-                      borderBottom: "1px solid #ddd", // Border color between cells
-                    }}
+                    sx={{ fontSize: "18px", fontWeight: 600, color: "#223556" }}
                   >
-                    {video.ratings}
+                    <TableSortLabel
+                      active={orderBy === "ratings"}
+                      direction={orderBy === "ratings" ? order : "asc"}
+                      onClick={() => handleSort("ratings")}
+                    >
+                      Ratings
+                    </TableSortLabel>
                   </TableCell>
                   <TableCell
-                    sx={{
-                      borderBottom: "1px solid #ddd", // Border color between cells
-                    }}
+                    sx={{ fontSize: "18px", fontWeight: 600, color: "#223556" }}
                   >
-                    {video.views}
+                    Views
                   </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHead>
+              <TableBody>
+                {sortedAndFilteredData.map((video) => (
+                  <TableRow
+                    key={video.id}
+                    sx={{
+                      backgroundColor: "#f9f9f9",
+                      borderBottom: "1px solid #ddd",
+                      height: "100px",
+                    }}
+                  >
+                    <TableCell
+                      sx={{
+                        fontSize: "15px",
+                        fontWeight: 600,
+                        color: "#223556",
+                      }}
+                    >
+                      <Checkbox
+                        checked={selectedVideos.includes(video.id)}
+                        onChange={() => handleSelect(video.id)}
+                      />
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontSize: "15px",
+                        fontWeight: 600,
+                        color: "#223556",
+                      }}
+                    >
+                      {video.srNo}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontSize: "15px",
+                        fontWeight: 600,
+                        color: "#223556",
+                      }}
+                    >
+                      {video.title}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontSize: "15px",
+                        fontWeight: 600,
+                        color: "#223556",
+                      }}
+                    >
+                      {video.description}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontSize: "15px",
+                        fontWeight: 600,
+                        color: "#223556",
+                      }}
+                    >
+                      {video.channel}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontSize: "15px",
+                        fontWeight: 600,
+                        color: "#223556",
+                      }}
+                    >
+                      <Button
+                        sx={{
+                          background: "#F2FFF7",
+                          color: "#00B448",
+                          border: "1px solid #00B448",
+                          borderRadius: "50px",
+                        }}
+                      >
+                        <Link
+                          href={video.link}
+                          sx={{
+                            textDecoration: "none",
+                            color: "#00B448",
+                          }}
+                        >
+                          Link
+                        </Link>
+                      </Button>
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontSize: "15px",
+                        fontWeight: 600,
+                        color: "#223556",
+                      }}
+                    >
+                      {video.ratings}
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        fontSize: "15px",
+                        fontWeight: 600,
+                        color: "#223556",
+                      }}
+                    >
+                      {video.views}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Box>
         </TableContainer>
         <h3>Videos Selected Earlier with Similar Description</h3>
-        {/* <TableContainer
-          sx={{
-            // boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)", // Shadow effect
-            border: "1px solid #ddd", // Border color
-            borderRadius: "8px", // Border radius
-            overflowX: "hidden",
-            overflowY: "auto", // Hide overflowing content
-            maxHeight: "300px",
-            marginX: "5px",
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              width: "26%",
-              margin: "20px",
-              justifyContent: "flex-start", // Align the filter to the left
-            }}
-          >
-            <span
-              style={{
-                textWrap: "nowrap",
-                marginRight: "10px",
-                fontSize: "16px",
-              }}
-            >
-              Filter By:
-            </span>
-            <FormControl variant="outlined" fullWidth size="small">
-              <InputLabel id="channel-filter-label">Channel Name</InputLabel>
-              <Select
-                labelId="channel-filter-label"
-                id="channel-filter"
-                value={filterChannel || ""}
-                onChange={handleFilterChange}
-                label="Channel Name"
-              >
-                <MenuItem value="">
-                  <em>All</em>
-                </MenuItem>
-                {uniqueChannels.map((channel) => (
-                  <MenuItem key={channel} value={channel}>
-                    {channel}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-          <Table
-            sx={{ minWidth: 650, borderCollapse: "collapse", borderSpacing: 0 }}
-          >
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontSize: "15px", fontWeight: 600 }}>
-                  Select
-                </TableCell>
-                <TableCell sx={{ fontSize: "15px", fontWeight: 600 }}>
-                  Sr.No
-                </TableCell>
-                <TableCell sx={{ fontSize: "15px", fontWeight: 600 }}>
-                  <TableSortLabel
-                    active={orderBy === "title"}
-                    direction={orderBy === "title" ? order : "asc"}
-                    onClick={() => handleSort("title")}
-                  >
-                    Title
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ fontSize: "15px", fontWeight: 600 }}>
-                  Description
-                </TableCell>
-                <TableCell sx={{ fontSize: "15px", fontWeight: 600 }}>
-                  Channel Name
-                </TableCell>
-                <TableCell sx={{ fontSize: "15px", fontWeight: 600 }}>
-                  Link
-                </TableCell>
-                <TableCell sx={{ fontSize: "15px", fontWeight: 600 }}>
-                  <TableSortLabel
-                    active={orderBy === "ratings"}
-                    direction={orderBy === "ratings" ? order : "asc"}
-                    onClick={() => handleSort("ratings")}
-                  >
-                    Ratings
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell sx={{ fontSize: "15px", fontWeight: 600 }}>
-                  Views
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {sortedAndFilteredData.map((video) => (
-                <TableRow
-                  key={video.id}
-                  sx={{
-                    "&:nth-of-type(even)": {
-                      backgroundColor: "#f9f9f9", // Alternate row background color
-                    },
-                    borderBottom: "1px solid #ddd",
-                  }}
-                >
-                  <TableCell
-                    sx={{
-                      borderBottom: "1px solid #ddd", // Border color between cells
-                    }}
-                  >
-                    <Checkbox
-                      checked={selectedVideos.includes(video.id)}
-                      onChange={() => handleSelect(video.id)}
-                    />
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      borderBottom: "1px solid #ddd", // Border color between cells
-                    }}
-                  >
-                    {video.srNo}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      borderBottom: "1px solid #ddd", // Border color between cells
-                    }}
-                  >
-                    {video.title}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      borderBottom: "1px solid #ddd", // Border color between cells
-                    }}
-                  >
-                    {video.channel}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      borderBottom: "1px solid #ddd", // Border color between cells
-                    }}
-                  >
-                    {video.description}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      borderBottom: "1px solid #ddd", // Border color between cells
-                    }}
-                  >
-                    <a href={video.link}>Link</a>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      borderBottom: "1px solid #ddd", // Border color between cells
-                    }}
-                  >
-                    {video.ratings}
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      borderBottom: "1px solid #ddd", // Border color between cells
-                    }}
-                  >
-                    {video.views}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer> */}
+
         <TableContainer>
           <Table sx={{ border: "1px solid #ddd" }}>
             <TableBody>
               <TableRow>
-                <TableCell>
-                  <h4>Coming Soon!</h4>
+                <TableCell
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <h3>Coming Soon!</h3>
                 </TableCell>
               </TableRow>
             </TableBody>
           </Table>
         </TableContainer>
+      </Box>
+      <Box>
         <Button
-          sx={{ fontWeight: 700, marginTop: "20px" }}
+          sx={{
+            fontWeight: 700,
+            marginTop: "20px",
+          }}
           variant="contained"
           size="large"
-          color="info"
+          color="secondary"
         >
           Download CSV
+          <FileDownloadIcon />
         </Button>
+      </Box>
+
+
       </Box>
     </Box>
   );
