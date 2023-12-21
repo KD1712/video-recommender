@@ -28,17 +28,26 @@ const Videolist: React.FC = () => {
   const { state } = useLocation();
   // const [selectedVideos, setSelectedVideos] = useState<number[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [orderBy, setOrderBy] = useState<string>("title");
+  const [
+    orderBy,
+    // setOrderBy
+  ] = useState<string>("title");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [order, setOrder] = useState<"asc" | "desc">("asc");
+  const [
+    order,
+    // setOrder
+  ] = useState<"asc" | "desc">("asc");
   const [filterChannel, setFilterChannel] = useState<string | null>(null);
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [data, setData] = useState(state);
+  const [
+    data,
+    // setData
+  ] = useState(state);
 
   useEffect(() => {
     console.log(state);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   // const handleDeleteSelectedRows = () => {
   //   setSelectedRows([]);
@@ -67,7 +76,6 @@ const Videolist: React.FC = () => {
     setFilterChannel(event.target.value);
   };
 
-
   const sortedAndFilteredData: Video[] = data
     .filter((video: Video) =>
       filterChannel ? video["Channel Name"] === filterChannel : true
@@ -90,8 +98,6 @@ const Videolist: React.FC = () => {
     ...new Set(data.map((item: any) => item["Channel Name"])),
   ];
 
-  
-
   const fieldNames = data.length > 0 ? Object.keys(data[0]) : [];
   const capitalizeFirstLetter = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -113,8 +119,6 @@ const Videolist: React.FC = () => {
 
     setSelectedRows(newSelectedRows);
   };
-
-
 
   return (
     <Box sx={{ background: "#ffffff" }}>
