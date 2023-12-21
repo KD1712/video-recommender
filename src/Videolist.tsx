@@ -28,50 +28,40 @@ const Videolist: React.FC = () => {
   const { state } = useLocation();
   // const [selectedVideos, setSelectedVideos] = useState<number[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [
-    orderBy,
-    // setOrderBy
-  ] = useState<string>("title");
+  const [orderBy, setOrderBy] = useState<string>("title");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [
-    order,
-    // setOrder
-  ] = useState<"asc" | "desc">("asc");
+  const [order, setOrder] = useState<"asc" | "desc">("asc");
   const [filterChannel, setFilterChannel] = useState<string | null>(null);
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [data, setData] = useState(state);
   const [
-    data,
-    // setData
-  ] = useState(state);
+    download,
+    // setDownload
+  ] = useState(data);
 
   useEffect(() => {
-    console.log(state);
+    // console.log(data);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  // const handleDeleteSelectedRows = () => {
-  //   setSelectedRows([]);
-  // };
-  // const handleSort = (column: string) => {
-  //   const isAsc = orderBy === column && order === "asc";
-  //   setOrder(isAsc ? "desc" : "asc");
-  //   setOrderBy(column);
-  // };
+  }, [data, download]);
+  const sortData = (columnName: string) => {
+    const isAsc = orderBy === columnName && order === "asc";
+    const sortedData = [...data].sort((a, b) => {
+      const valueA = a[columnName];
+      const valueB = b[columnName];
 
-  // const handleSelect = (videoId: number) => {
-  //   const isSelected = selectedVideos.includes(videoId);
-  //   if (isSelected) {
-  //     setSelectedVideos((prevSelected) =>
-  //       prevSelected.filter((id) => id !== videoId)
-  //     );
-  //   } else {
-  //     setSelectedVideos((prevSelected) => [...prevSelected, videoId]);
-  //   }
-  // };
-  // const filteredData = filterChannel
-  //   ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //     data.filter((item: any) => item["Channel Name"] === filterChannel)
-  //   : data;
+      if (isAsc) {
+        return valueA < valueB ? -1 : 1;
+      } else {
+        return valueA > valueB ? -1 : 1;
+      }
+    });
+
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(columnName);
+    setData(sortedData);
+  };
+
   const handleFilterChange = (event: SelectChangeEvent<string>) => {
     setFilterChannel(event.target.value);
   };
@@ -88,7 +78,6 @@ const Videolist: React.FC = () => {
           ) * (order === "asc" ? 1 : -1)
         );
       }
-
       return 0;
     });
 
@@ -118,6 +107,37 @@ const Videolist: React.FC = () => {
     }
 
     setSelectedRows(newSelectedRows);
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const formatDuration = (durationString: any) => {
+    const duration = durationString.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
+
+    const hours = duration[1] ? parseInt(duration[1], 10) : 0;
+    const minutes = duration[2] ? parseInt(duration[2], 10) : 0;
+    const seconds = duration[3] ? parseInt(duration[3], 10) : 0;
+
+    const formattedDuration =
+      (hours > 0 ? hours + "hour " : "") +
+      (minutes > 0 ? minutes + "min " : "") +
+      (seconds > 0 ? seconds + "sec" : "");
+
+    return formattedDuration.trim();
+  };
+  const downloadCSV = () => {
+    const csvContent = "data:text/csv;charset=utf-8," + convertToCSV(data);
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "exported_data.csv");
+    document.body.appendChild(link);
+    link.click();
+  };
+
+  const convertToCSV = (data: Array<object>) => {
+    const header = Object.keys(data[0]).join(",");
+    const rows = data.map((row: object) => Object.values(row).join(","));
+    return [header, ...rows].join("\n");
   };
 
   return (
@@ -228,19 +248,47 @@ const Videolist: React.FC = () => {
                   <TableCell
                     key={fieldName}
                     sx={{
-                      // display: "flex",
-                      // flexDirection: "column",
                       color: "#212b4b",
                       fontWeight: 700,
                       fontSize: "17px",
                       maxHeight: "100px",
-                      overflowY: "auto", // Use overflowY to enable vertical scrolling
+                      overflowY: "auto",
                       whiteSpace: "normal",
                       border: "1px solid black",
                       textAlign: "center",
+                      cursor: [
+                        "Comments Count",
+                        "View Count",
+                        "Like Count",
+                        "Duration",
+                        "Avg Sentiment Score",
+                        "similarity_score",
+                      ].includes(fieldName)
+                        ? "pointer"
+                        : "default",
                     }}
+                    onClick={() =>
+                      [
+                        "Comments Count",
+                        "View Count",
+                        "Like Count",
+                        "Duration",
+                        "Avg Sentiment Score",
+                        "similarity_score",
+                      ].includes(fieldName)
+                        ? sortData(fieldName)
+                        : null
+                    }
                   >
                     {capitalizeAndReplaceUnderscore(fieldName)}
+
+                    {[
+                      "View Count",
+                      "Like Count",
+                      "Duration",
+                      "Avg Sentiment Score",
+                      "similarity_score",
+                    ].includes(fieldName) && " ⬆️⬇️"}
                   </TableCell>
                 ))}
               </TableRow>
@@ -282,7 +330,17 @@ const Videolist: React.FC = () => {
                         verticalAlign: "top",
                       }}
                     >
-                      {Array.isArray(rowData[fieldName])
+                      {fieldName === "Duration"
+                        ? Array.isArray(rowData[fieldName])
+                          ? rowData[fieldName].map(
+                              (durationString: string, index: number) => (
+                                <div key={index}>
+                                  {formatDuration(durationString)}
+                                </div>
+                              )
+                            )
+                          : formatDuration(rowData[fieldName])
+                        : Array.isArray(rowData[fieldName])
                         ? rowData[fieldName].join(", ")
                         : String(rowData[fieldName])}
                     </TableCell>
@@ -325,7 +383,7 @@ const Videolist: React.FC = () => {
               }}
               variant="contained"
               size="large"
-              // color="secondary"
+              onClick={downloadCSV}
             >
               Download CSV
               <FileDownloadIcon />
