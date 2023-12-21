@@ -7,7 +7,6 @@ import {
   TableHead,
   TableRow,
   Checkbox,
-  TableSortLabel,
   Select,
   MenuItem,
   FormControl,
@@ -27,35 +26,47 @@ interface Video {
 
 const Videolist: React.FC = () => {
   const { state } = useLocation();
-  const [selectedVideos, setSelectedVideos] = useState<number[]>([]);
+  // const [selectedVideos, setSelectedVideos] = useState<number[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [orderBy, setOrderBy] = useState<string>("title");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [order, setOrder] = useState<"asc" | "desc">("asc");
   const [filterChannel, setFilterChannel] = useState<string | null>(null);
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [data, setData] = useState(state);
 
   useEffect(() => {
     console.log(state);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  // const handleDeleteSelectedRows = () => {
+  //   setSelectedRows([]);
+  // };
+  // const handleSort = (column: string) => {
+  //   const isAsc = orderBy === column && order === "asc";
+  //   setOrder(isAsc ? "desc" : "asc");
+  //   setOrderBy(column);
+  // };
 
-  const handleSelect = (videoId: number) => {
-    const isSelected = selectedVideos.includes(videoId);
-    if (isSelected) {
-      setSelectedVideos((prevSelected) =>
-        prevSelected.filter((id) => id !== videoId)
-      );
-    } else {
-      setSelectedVideos((prevSelected) => [...prevSelected, videoId]);
-    }
-  };
+  // const handleSelect = (videoId: number) => {
+  //   const isSelected = selectedVideos.includes(videoId);
+  //   if (isSelected) {
+  //     setSelectedVideos((prevSelected) =>
+  //       prevSelected.filter((id) => id !== videoId)
+  //     );
+  //   } else {
+  //     setSelectedVideos((prevSelected) => [...prevSelected, videoId]);
+  //   }
+  // };
+  // const filteredData = filterChannel
+  //   ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //     data.filter((item: any) => item["Channel Name"] === filterChannel)
+  //   : data;
   const handleFilterChange = (event: SelectChangeEvent<string>) => {
     setFilterChannel(event.target.value);
   };
-  const handleSort = (column: string) => {
-    const isAsc = orderBy === column && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(column);
-  };
+
 
   const sortedAndFilteredData: Video[] = data
     .filter((video: Video) =>
@@ -75,13 +86,11 @@ const Videolist: React.FC = () => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const uniqueChannels = [
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...new Set(data.map((item: any) => item["Channel Name"])),
   ];
 
-  const filteredData = filterChannel
-    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data.filter((item: any) => item["Channel Name"] === filterChannel)
-    : data;
+  
 
   const fieldNames = data.length > 0 ? Object.keys(data[0]) : [];
   const capitalizeFirstLetter = (str: string) => {
@@ -105,9 +114,7 @@ const Videolist: React.FC = () => {
     setSelectedRows(newSelectedRows);
   };
 
-  const handleDeleteSelectedRows = () => {
-    setSelectedRows([]);
-  };
+
 
   return (
     <Box sx={{ background: "#ffffff" }}>

@@ -4,12 +4,12 @@ import { useNavigate } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
 import "./image.css";
-import bgimage from "./assets/bgimg.jpg";
-import bgimage1 from "./assets/bgimage1.jpg";
-import bgimage2 from "./assets/bgimage3.jpg";
-import bgimage3 from "./assets/bgimage4.jpg";
-import bgimage4 from "./assets/bgimage5.jpg";
-import bgimage5 from "./assets/bgimage6.jpg";
+// import bgimage from "./assets/bgimg.jpg";
+// import bgimage1 from "./assets/bgimage1.jpg";
+// import bgimage2 from "./assets/bgimage3.jpg";
+// import bgimage3 from "./assets/bgimage4.jpg";
+// import bgimage4 from "./assets/bgimage5.jpg";
+// import bgimage5 from "./assets/bgimage6.jpg";
 import bgimage6 from "./assets/bgimage7.png";
 
 const Videoform: React.FC = () => {
