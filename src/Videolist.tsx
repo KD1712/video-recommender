@@ -13,19 +13,22 @@ import {
   InputLabel,
   Button,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SelectChangeEvent } from "@mui/material/Select";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 // import data from "./data.json";
 import { useLocation } from "react-router-dom";
+import Papa from "papaparse";
+
 interface Video {
   "Channel Name": string;
 }
 
 const Videolist: React.FC = () => {
   const { state } = useLocation();
+  const tableRef = useRef<HTMLTableElement>(null);
   // const [selectedVideos, setSelectedVideos] = useState<number[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [orderBy, setOrderBy] = useState<string>("title");
@@ -35,15 +38,20 @@ const Videolist: React.FC = () => {
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [data, setData] = useState(state);
-  const [
-    download,
-    // setDownload
-  ] = useState(data);
+  const [selectedPublishedTimes, setSelectedPublishedTimes] = useState<
+    string[]
+  >([]);
+  // const [selectedRowData, setSelectedRowData] = useState<Array<string>>([]);
 
   useEffect(() => {
-    // console.log(data);
+    // console.log(selectedPublishedTimes);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, download]);
+  }, [selectedPublishedTimes]);
+  useEffect(() => {
+    if (tableRef.current) {
+      tableRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [filterChannel]);
   const sortData = (columnName: string) => {
     const isAsc = orderBy === columnName && order === "asc";
     const sortedData = [...data].sort((a, b) => {
@@ -63,7 +71,55 @@ const Videolist: React.FC = () => {
   };
 
   const handleFilterChange = (event: SelectChangeEvent<string>) => {
-    setFilterChannel(event.target.value);
+    const newFilterChannel = event.target.value as string;
+
+    // Find the indexes of rows with the selected filter channel
+    const newSelectedRows = sortedAndFilteredData.reduce(
+      (acc, rowData, index) => {
+        // Explicitly cast rowData to 'any' type to access specific properties
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const anyRowData = rowData as any;
+
+        if (anyRowData["Channel Name"] === newFilterChannel) {
+          acc.push(index);
+        }
+        return acc;
+      },
+      [] as number[]
+    );
+
+    // Update filter channel
+    setFilterChannel(newFilterChannel);
+
+    if (newFilterChannel !== "") {
+      // If filtering to a specific channel, maintain existing selected rows and published times
+      const existingSelectedRows = [...selectedRows];
+      const existingPublishedTimes = [...selectedPublishedTimes];
+
+      // Select checkboxes for existing published times that are also in the new filter channel
+      const selectedInFilter = existingSelectedRows.filter((index) =>
+        newSelectedRows.includes(index)
+      );
+
+      setSelectedRows(selectedInFilter);
+      setSelectedPublishedTimes(
+        selectedInFilter.map(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (index) => (sortedAndFilteredData[index] as any)["Published Time"]
+        )
+      );
+      setSelectedPublishedTimes(existingPublishedTimes);
+    } else {
+      // If changing from a specific channel to "All," maintain existing selected rows and published times
+      const existingSelectedRows = [...selectedRows];
+      const existingPublishedTimes = [...selectedPublishedTimes];
+
+      if (newFilterChannel === "") {
+        // Select checkboxes for existing published times when filtering back to "All"
+        setSelectedRows(existingSelectedRows);
+        setSelectedPublishedTimes(existingPublishedTimes);
+      }
+    }
   };
 
   const sortedAndFilteredData: Video[] = data
@@ -96,17 +152,59 @@ const Videolist: React.FC = () => {
     const capitalizedWords = words.map((word) => capitalizeFirstLetter(word));
     return capitalizedWords.join(" ");
   };
-  const handleRowSelect = (index: number) => {
-    const selectedIndex = selectedRows.indexOf(index);
-    const newSelectedRows = [...selectedRows];
+  // const handleRowSelect = (index: number) => {
+  //   const selectedRowIndex = selectedRows.indexOf(index);
+  //   const isSelected = selectedRowIndex !== -1;
 
-    if (selectedIndex === -1) {
-      newSelectedRows.push(index);
+  //   let newSelected: number[] = [];
+
+  //   if (isSelected) {
+  //     // Remove the item from selectedRows
+  //     newSelected = [
+  //       ...selectedRows.slice(0, selectedRowIndex),
+  //       ...selectedRows.slice(selectedRowIndex + 1),
+  //     ];
+  //   } else {
+  //     // Add the item to selectedRows
+  //     newSelected = [...selectedRows, index];
+  //   }
+
+  //   setSelectedRows(newSelected);
+
+  //   // Log the Published Time of the selected row
+  //   const selectedRowData = sortedAndFilteredData[index];
+  //   if ("Published Time" in selectedRowData) {
+  //     console.log("Published Time:", selectedRowData["Published Time"]);
+  //   }
+  // };
+  const handleRowSelect = (index: number) => {
+    const isSelected = selectedRows.includes(index);
+    let newSelected: number[] = [];
+
+    if (isSelected) {
+      // Remove the item from selectedRows and its published time from the state
+      newSelected = selectedRows.filter((item) => item !== index);
+      setSelectedPublishedTimes((prevPublishedTimes) =>
+        prevPublishedTimes.filter((_, i) => i !== index)
+      );
     } else {
-      newSelectedRows.splice(selectedIndex, 1);
+      // Add the item to selectedRows and its published time to the state
+      newSelected = [...selectedRows, index];
+      setSelectedPublishedTimes((prevPublishedTimes) => [
+        ...prevPublishedTimes,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (sortedAndFilteredData[index] as any)["Published Time"],
+      ]);
     }
 
-    setSelectedRows(newSelectedRows);
+    setSelectedRows(newSelected);
+
+    // Log the Published Time of the selected row
+    const selectedRowData = sortedAndFilteredData[index];
+    if ("Published Time" in selectedRowData) {
+      // console.log("Published Time:", selectedRowData["Published Time"]);
+    }
+    // console.log(selectedRowData["Channel Name"]);
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -124,20 +222,106 @@ const Videolist: React.FC = () => {
 
     return formattedDuration.trim();
   };
-  const downloadCSV = () => {
-    const csvContent = "data:text/csv;charset=utf-8," + convertToCSV(data);
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "exported_data.csv");
-    document.body.appendChild(link);
-    link.click();
-  };
 
-  const convertToCSV = (data: Array<object>) => {
-    const header = Object.keys(data[0]).join(",");
-    const rows = data.map((row: object) => Object.values(row).join(","));
-    return [header, ...rows].join("\n");
+  // const handleLogSelectedRows = () => {
+  //   const selectedRowsData = selectedRows.map((index) => {
+  //     const rowData = sortedAndFilteredData[index];
+  //     // Check if the property exists before accessing it
+  //     if ("Published Time" in rowData) {
+  //       return rowData["Published Time"];
+  //     }
+  //     return null;
+  //   });
+
+  //   console.log("Selected Rows Published Time:", selectedRowsData);
+  // };
+  // const handleSelectAllRows = () => {
+  //   const allRowsSelected =
+  //     selectedRows.length === sortedAndFilteredData.length;
+
+  //   if (allRowsSelected) {
+  //     // Deselect all rows
+  //     setSelectedRows([]);
+  //     setSelectedPublishedTimes([]);
+  //   } else {
+  //     // Select all rows
+  //     const allRowIndexes = Array.from(
+  //       { length: sortedAndFilteredData.length },
+  //       (_, i) => i
+  //     );
+  //     setSelectedRows(allRowIndexes);
+
+  //     // Add corresponding published times to the array
+  //     const allPublishedTimes = sortedAndFilteredData.map(
+  //       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //       (rowData) => (rowData as any)["Published Time"]
+  //     );
+  //     setSelectedPublishedTimes(allPublishedTimes);
+  //   }
+  // };
+  // const handleSelectAllRows = () => {
+  //   const allRowsSelected =
+  //     selectedRows.length === sortedAndFilteredData.length;
+
+  //   // Check if a channel filter is applied
+  //   if (filterChannel !== "") {
+  //     if (allRowsSelected) {
+  //       // If all rows are selected, remove rows of the filtered channel from the published times array
+  //       const updatedPublishedTimes = selectedPublishedTimes.filter((time) => {
+  //         const index = sortedAndFilteredData.findIndex(
+  //           (rowData) =>
+  //             // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //             (rowData as any["Published Time"]) === time &&
+  //             rowData["Channel Name"] === filterChannel
+  //         );
+  //         return index === -1;
+  //       });
+  //       setSelectedPublishedTimes(updatedPublishedTimes);
+  //     } else if (selectedRows.length > 0) {
+  //       // If some rows are selected (indeterminate condition),
+  //       // add rows of the filtered channel to the published times array
+  //       const newPublishedTimes = sortedAndFilteredData
+  //         .filter(
+  //           (rowData, index) =>
+  //             selectedRows.includes(index) &&
+  //             rowData["Channel Name"] === filterChannel
+  //         )
+  //         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //         .map((rowData) => rowData as any["Published Time"] as string);
+
+  //       setSelectedPublishedTimes((prevPublishedTimes) => [
+  //         ...prevPublishedTimes,
+  //         ...newPublishedTimes,
+  //       ]);
+  //     } else {
+  //       // If no rows are selected, add all rows of the filtered channel to the published times array
+  //       const allPublishedTimes = sortedAndFilteredData
+  //         .filter((rowData) => rowData["Channel Name"] === filterChannel)
+  //         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //         .map((rowData) => rowData as any["Published Time"] as string);
+
+  //       setSelectedPublishedTimes(allPublishedTimes);
+  //     }
+  //   }
+  // };
+  const handleDownloadData = () => {
+    // Assuming data is an array containing all video data
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const selectedData = data.filter((video: any) =>
+      selectedPublishedTimes.includes(video["Published Time"])
+    );
+    const csvData = Papa.unparse(selectedData);
+    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8" });
+
+    // Create a download link and trigger a click to download the file
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "selected_data.csv";
+    a.click();
+
+    // Log the selected data as JSON
+    // console.log(JSON.stringify(selectedData, null, 2));
+    // You can replace the console.log with your download logic
   };
 
   return (
@@ -184,7 +368,7 @@ const Videolist: React.FC = () => {
             sx={{
               display: "flex",
               flexDirection: "row",
-              marginLeft: "70px",
+              marginLeft: "10px",
             }}
           >
             <FilterAltIcon sx={{ fontSize: "30px", marginY: "2.5px" }} />
@@ -217,7 +401,10 @@ const Videolist: React.FC = () => {
           </Box>
         </Box>
 
-        <TableContainer sx={{ maxHeight: "400px", overflow: "auto" }}>
+        <TableContainer
+          ref={tableRef}
+          sx={{ maxHeight: "400px", overflow: "auto" }}
+        >
           <Table>
             <TableHead
               sx={{
@@ -226,8 +413,20 @@ const Videolist: React.FC = () => {
               }}
             >
               <TableRow>
-                <TableCell sx={{ width: "50px", border: "1px solid black" }}>
-                  <Checkbox
+                <TableCell
+                  sx={{
+                    width: "50px",
+                    border: "1px solid black",
+                    color: "#212b4b",
+                    fontWeight: 700,
+                    fontSize: "17px",
+                    maxHeight: "100px",
+                    overflowY: "auto",
+                    whiteSpace: "normal",
+                    textAlign: "center",
+                  }}
+                >
+                  {/* <Checkbox
                     indeterminate={
                       selectedRows.length > 0 &&
                       selectedRows.length < sortedAndFilteredData.length
@@ -235,14 +434,9 @@ const Videolist: React.FC = () => {
                     checked={
                       selectedRows.length === sortedAndFilteredData.length
                     }
-                    onChange={() =>
-                      selectedRows.length === sortedAndFilteredData.length
-                        ? setSelectedRows([])
-                        : setSelectedRows(
-                            sortedAndFilteredData.map((_, index) => index)
-                          )
-                    }
-                  />
+                    onChange={handleSelectAllRows}
+                  /> */}
+                  Select to Download
                 </TableCell>
                 {fieldNames.map((fieldName) => (
                   <TableCell
@@ -283,6 +477,7 @@ const Videolist: React.FC = () => {
                     {capitalizeAndReplaceUnderscore(fieldName)}
 
                     {[
+                      "Comments Count",
                       "View Count",
                       "Like Count",
                       "Duration",
@@ -295,7 +490,7 @@ const Videolist: React.FC = () => {
             </TableHead>
             <TableBody>
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {sortedAndFilteredData.map((rowData: any, index: number) => (
+              {sortedAndFilteredData.map((rowData: any, index: any) => (
                 <TableRow key={index}>
                   <TableCell
                     sx={{
@@ -311,7 +506,10 @@ const Videolist: React.FC = () => {
                     }}
                   >
                     <Checkbox
-                      checked={selectedRows.includes(index)}
+                      // checked={selectedRows.includes(index)}
+                      checked={selectedPublishedTimes.includes(
+                        rowData["Published Time"]
+                      )}
                       onChange={() => handleRowSelect(index)}
                     />
                   </TableCell>
@@ -383,7 +581,8 @@ const Videolist: React.FC = () => {
               }}
               variant="contained"
               size="large"
-              onClick={downloadCSV}
+              // onClick={downloadCSV}
+              onClick={handleDownloadData}
             >
               Download CSV
               <FileDownloadIcon />
